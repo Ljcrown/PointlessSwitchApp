@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pointless Switch - Click and Chat!</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: 'Verdana', sans-serif;
+            background: linear-gradient(to bottom, #ffea70, #f5deb3);
+            margin: 0;
+            color: #000;
+            text-align: center;
+        }
+        #switch {
+            width: 80px;
+            height: 40px;
+            background-color: #d4af37;
+            border-radius: 20px;
+            position: relative;
+            cursor: pointer;
+            margin: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease;
+        }
+        #switch:hover {
+            background-color: #b8860b;
+        }
+        #toggle {
+            width: 36px;
+            height: 36px;
+            background-color: #7c5295;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: left 0.3s ease, transform 0.1s ease;
+        }
+        #toggle:active {
+            transform: scale(1.1);
+        }
+        #counter {
+            font-size: 2em;
+            margin: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        #record {
+            font-size: 1.2em;
+            margin: 10px;
+            color: #555;
+        }
+        #chat {
+            width: 300px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+        #inputArea {
+            display: flex;
+            margin-top: 10px;
+            width: 300px;
+        }
+        #messageInput {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #d4af37;
+            border-radius: 10px 0 0 10px;
+            outline: none;
+        }
+        #usernameInput {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            outline: none;
+            width: 300px;
+        }
+        #sendMessage {
+            padding: 10px;
+            background-color: #7c5295;
+            color: white;
+            border: none;
+            border-radius: 0 10px 10px 0;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #sendMessage:hover {
+            background-color: #5b3c71;
+        }
+        #countdown {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2em;
+            color: #000;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #recordDate {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 1em;
+            color: #000;
+        }
+        #signature {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 1.2em;
+            color: #000;
+            font-family: 'Brush Script MT', cursive;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="countdown">24:00:00</div>
+    <h1>Pointless Switch Game!</h1>
+    <p>Click the switch and chat with friends! Try to beat the record!</p>
+    <div id="switch" onclick="toggleSwitch()">
+        <div id="toggle"></div>
+    </div>
+    <div id="counter">Total Clicks: 0</div>
+    <div id="record">Record Clicks: 0</div>
+    <div id="recordDate">Date: <script>document.getElementById("recordDate").innerText += new Date().toLocaleDateString('en-GB').replace(/\//g, '');</script></div>
+    <div id="signature">Obelius</div>
+
+    <input type="text" id="usernameInput" placeholder="Enter your username" />
+    <div id="chat">
+        <div id="messages"></div>
+    </div>
+    <div id="inputArea">
+        <input type="text" id="messageInput" placeholder="Enter your message" onkeypress="handleKeyPress(event)" />
+        <button id="sendMessage" onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        let clicks = 0;
+        let recordClicks = 0;
+        let countdownTimer;
+
+        function toggleSwitch() {
+            clicks++;
+            document.getElementById("counter").innerText = "Total Clicks: " + clicks;
+            const toggle = document.getElementById("toggle");
+            toggle.style.left = toggle.style.left === "42px" ? "2px" : "42px";
+
+            if (clicks > recordClicks) {
+                recordClicks = clicks;
+                const recordDate = new Date().toLocaleDateString('en-GB').replace(/\//g, '');
+                document.getElementById("record").innerText = "Record Clicks: " + recordClicks;
+                document.getElementById("recordDate").innerText = "Date: " + recordDate;
+            }
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById("messageInput");
+            const messageText = messageInput.value.trim();
+            const usernameInput = document.getElementById("usernameInput");
+            const username = usernameInput.value.trim() || "Anonymous";
+
+            if (messageText) {
+                const messages = document.getElementById("messages");
+                const newMessage = document.createElement("div");
+                const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                newMessage.textContent = `[${timestamp}] ${username}: ${messageText}`;
+                messages.appendChild(newMessage);
+                messages.scrollTop = messages.scrollHeight;
+                messageInput.value = "";
+                messageInput.focus();
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        }
+
+        function startCountdown(duration) {
+            let timer = duration, hours, minutes, seconds;
+            countdownTimer = setInterval(function () {
+                hours = Math.floor(timer / 3600);
+                minutes = Math.floor((timer % 3600) / 60);
+                seconds = timer % 60;
+
+                document.getElementById('countdown').textContent =
+                    (hours < 10 ? "0" : "") + hours + ":" +
+                    (minutes < 10 ? "0" : "") + minutes + ":" +
+                    (seconds < 10 ? "0" : "") + seconds;
+
+                if (--timer < 0) {
+                    clicks = 0;
+                    document.getElementById("counter").innerText = "Total Clicks: 0";
+                    timer = duration;
+                }
+            }, 1000);
+        }
+
+        window.onload = function () {
+            const countdownDuration = 24 * 60 * 60;
+            startCountdown(countdownDuration);
+        };
+    </script>
+
+</body>
+</html>
